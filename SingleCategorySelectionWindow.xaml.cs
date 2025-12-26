@@ -13,7 +13,7 @@ namespace MoneyFlowWPF
         {
             InitializeComponent();
             PromptText.Text = prompt;
-
+            
             var filtered = allCategories
                 .Where(c => c.IsIncome == isIncome)
                 .OrderBy(c => c.Name)

@@ -21,12 +21,45 @@ namespace MoneyFlowWPF
 
         private void LoadCategories()
         {
+            // Загружаем ВСЕ категории для общего доступа
             _categories = _dbService.GetAllCategories();
-            CategoryComboBox.ItemsSource = _categories;
 
+            // НЕ присваиваем сразу в ComboBox
+            // CategoryComboBox.ItemsSource = _categories;
+
+            // Вместо этого будем обновлять список при изменении типа транзакции
+            UpdateCategoriesForCurrentType();
+
+            // Выбираем категорию "Другое" по умолчанию (если она есть)
             var defaultCat = _categories.FirstOrDefault(c => c.Name == "Другое");
             if (defaultCat != null)
                 CategoryComboBox.SelectedItem = defaultCat;
+        }
+
+        private void IncomeRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateCategoriesForCurrentType();
+        }
+
+        private void ExpenseRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateCategoriesForCurrentType();
+        }
+        private void UpdateCategoriesForCurrentType()
+        {
+            // Определяем текущий тип транзакции
+            bool isIncome = IncomeRadio.IsChecked == true;
+
+            // Фильтруем категории по типу
+            var filteredCategories = _categories
+                .Where(c => c.IsIncome == isIncome)
+                .OrderBy(c => c.Name)
+                .ToList();
+
+            // Обновляем ComboBox
+            CategoryComboBox.ItemsSource = filteredCategories;
+            CategoryComboBox.DisplayMemberPath = "Name";
+            CategoryComboBox.SelectedValuePath = "Id";
         }
 
         private void AmountTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
